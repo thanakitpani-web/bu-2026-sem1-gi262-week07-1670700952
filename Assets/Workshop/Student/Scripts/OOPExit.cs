@@ -3,13 +3,12 @@ using UnityEngine;
 
 namespace Solution
 {
-
     public class OOPExit : Identity
     {
         public Leaderboard leaderboard;
         public string ItemToOpen = "Key";
         public int ItemAmountToOpen = 2;
-        
+
         public override bool Hit()
         {
             bool IsHasItemAmount = mapGenerator.player.inventory.HasItem(ItemToOpen, ItemAmountToOpen);
@@ -19,22 +18,29 @@ namespace Solution
                 leaderboard.gameObject.SetActive(true);
 
                 Debug.Log("You win");
-                //add code to manage leaderboard scores
+
+                // 1. Calculate the player's score
                 int score = CalculateScore();
+
+                // 2. Record the score in the leaderboard
                 string playerName = mapGenerator.player.Name;
                 leaderboard.RecordScore(new PlayerScore(playerName, score));
-                leaderboard.PrintScores();
+
+                // 3. Show the leaderboard UI
                 leaderboard.ShowleaderBoard();
-    
+
                 return true;
             }
-            else {
+            else
+            {
                 Debug.Log("Need Item " + ItemToOpen + " to Open");
                 return false;
             }
         }
-        //Logic CalculateScore
-        int CalculateScore() {
+
+        // Calculate the player's score
+        int CalculateScore()
+        {
             int score = (int)((mapGenerator.player.energy * 100) / Time.time);
             return score;
         }
