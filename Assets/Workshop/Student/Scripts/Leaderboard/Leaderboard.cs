@@ -11,10 +11,9 @@ namespace Searching
         private List<PlayerScore> scores = new List<PlayerScore>();
         public GameObject UIScore;
         public Transform UiParent;
-
         void Awake()
         {
-            // Add initial scores in unsorted order
+            // Add 20 initial scores in unsorted order
             RecordScore(new PlayerScore("Alice", 100));
             RecordScore(new PlayerScore("Bob", 50));
             RecordScore(new PlayerScore("Charlie", 75));
@@ -30,57 +29,70 @@ namespace Searching
             RecordScore(new PlayerScore("Kevin", 275));
             RecordScore(new PlayerScore("Nina", 350));
             RecordScore(new PlayerScore("Mona", 325));
+            
         }
 
         public void RecordScore(PlayerScore score)
         {
-            // [1] Sequential search if the player is already in the list
-            int existingIndex = -1;
-            for (int i = 0; i < scores.Count; i++)
+            // [1] sequential search if the player is already in the list
+            int index = -1;
+            for (int i=0; i<scores.Count; i++)
             {
                 if (scores[i].playerName == score.playerName)
                 {
-                    existingIndex = i;
+                    index = i;
                     break;
                 }
             }
-
-            if (existingIndex != -1)
+            if (index != -1)
             {
-                scores.RemoveAt(existingIndex);
+                scores.RemoveAt(index);
             }
 
-            // [2] Find the insertion index using binary search (descending order)
-            int low = 0;
-            int high = scores.Count - 1;
-            int insertIndex = scores.Count;
-
-            while (low <= high)
+           
+            // [2] find index to insert that make the scores list sorted with binary search
+            index = -1;
+            int left = 0;
+            int right = scores.Count - 1;
+            while (left <= right)
             {
-                int mid = low + (high - low) / 2;
-                if (scores[mid].score < score.score)
+                //right = int.MaxValue;
+                // int mid = (left + right) / 2; // น่าจะพัง
+                int mid = left + ((right - left) / 2);
+                
+                if (scores[mid].score == score.score)
                 {
-                    insertIndex = mid;
-                    high = mid - 1;
+                    index = mid;
+                    break;
                 }
-                else
+                else if (scores[mid].score < score.score)
                 {
-                    low = mid + 1;
+                    left = mid + 1;
+                }
+                else if (scores[mid].score > score.score)
+                {
+                    right = mid - 1;
                 }
             }
 
-            // [3] Insert the score at the appropriate index
-            scores.Insert(insertIndex, score);
+            // [3] If the score is not found, insert it at the appropriate index
+            if (index == -1)
+            {
+                index = left;
+            }
+
+            scores.Insert(index, score);
+
         }
 
         public void PrintScores()
         {
+            // join all scores as string and print it
             string allScores = scores.Aggregate("", (acc, score) => acc + score.score.ToString() + ",");
             Debug.Log(allScores);
+            
         }
-
-        public void ShowleaderBoard()
-        {
+        public void ShowleaderBoard() {
             foreach (var score in scores)
             {
                 UIPlayerScore uIScore = Instantiate(UIScore, UiParent).GetComponent<UIPlayerScore>();
